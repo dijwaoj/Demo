@@ -1,8 +1,9 @@
-const { createApp, ref, computed } = Vue;
+const { createApp, ref, computed, onMounted, onUnmounted } = Vue;
 
 const app = createApp({
     setup() {
-        const gold = ref(100);
+        const gameData = ref(loadGame());
+        const gold = computed(() => gameData.value.gold);
         const currentTabId = ref('adventure');
         
         const tabs = [
@@ -12,7 +13,17 @@ const app = createApp({
             { id: 'shop', name: '商店', icon: '🏪' }
         ];
 
-        return { gold, currentTabId, tabs };
+        // Auto-save every 30 seconds
+        let saveInterval = null;
+        onMounted(() => {
+            saveInterval = setInterval(() => saveGame(gameData.value), 30000);
+            window.addEventListener('beforeunload', () => saveGame(gameData.value));
+        });
+        onUnmounted(() => {
+            if (saveInterval) clearInterval(saveInterval);
+        });
+
+        return { gameData, gold, currentTabId, tabs };
     }
 });
 
