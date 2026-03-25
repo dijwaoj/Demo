@@ -107,12 +107,39 @@ const app = createApp({
             gameData.value.equipment = gameData.value.equipment.filter(e => e.id !== equip.id);
         }
 
+        const gachaResult = ref(null);
+
+        function gacha() {
+            if (gameData.value.gold < 200) return;
+            gameData.value.gold -= 200;
+
+            const roll = Math.random();
+            let roleId;
+            if (roll < 0.05) roleId = 'priest';       // 5%
+            else if (roll < 0.15) roleId = 'archer';   // 10%
+            else if (roll < 0.30) roleId = 'mage';     // 15%
+            else if (roll < 0.50) roleId = 'archer';   // 20% (duplicate pool)
+            else roleId = 'warrior';                    // 50%
+
+            const existing = gameData.value.heroes.find(h => h.roleId === roleId);
+            const role = ROLES.find(r => r.id === roleId);
+
+            if (existing) {
+                existing.level++;
+                gachaResult.value = { ...role, quality: 2, name: role.name + ' (等级+1)' };
+            } else {
+                gameData.value.heroes.push({ roleId, level: 1, exp: 0 });
+                gachaResult.value = { ...role, quality: roleId === 'priest' ? 5 : roleId === 'archer' ? 4 : roleId === 'mage' ? 3 : 1 };
+            }
+        }
+
         return {
             gameData, gold, currentTabId, tabs,
             battleLogs, showStageSelect, currentStage, availableStages,
             selectStage, selectedHero, getRole,
             getQualityColor, getEquipTypeLabel, getEquipStatLabel,
-            enhanceEquip, sellEquip
+            enhanceEquip, sellEquip,
+            gachaResult, gacha
         };
     }
 });
