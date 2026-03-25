@@ -51,8 +51,9 @@ const app = createApp({
                     battleLogs.value.push({ text: `战斗胜利！获得 ${drops.gold} 金币`, type: 'win' });
 
                     if (drops.equipment) {
-                        gameData.value.equipment.push(drops.equipment);
-                        battleLogs.value.push({ text: `掉落装备: ${drops.equipment.name}`, type: 'drop' });
+                        addToInventory(gameData.value.equipment, drops.equipment);
+                        sortInventory(gameData.value.equipment);
+                        battleLogs.value.push({ text: `掉落装备: ${drops.equipment.name} (×${drops.equipment.count})`, type: 'drop' });
                     }
                     scrollLogToBottom();
 
@@ -113,14 +114,20 @@ const app = createApp({
             const cost = enhanceCost(equip);
             if (gameData.value.gold >= cost) {
                 gameData.value.gold -= cost;
-                equip.level++;
-                equip.bonus = equip.quality * 5 * equip.level;
+                // Find and enhance all matching items in stack
+                const match = gameData.value.equipment.find(e =>
+                    e.name === equip.name && e.quality === equip.quality && e.forRole === equip.forRole
+                );
+                if (match) {
+                    match.level++;
+                    match.bonus = match.quality * 5 * match.level;
+                }
             }
         }
 
         function sellEquip(equip) {
             gameData.value.gold += sellPrice(equip);
-            gameData.value.equipment = gameData.value.equipment.filter(e => e.id !== equip.id);
+            removeFromInventory(gameData.value.equipment, equip);
         }
 
         const gachaResult = ref(null);
@@ -157,21 +164,28 @@ const app = createApp({
         function equipToHero(hero) {
             if (!equipTarget.value) return;
             const equip = equipTarget.value;
-            const slot = equip.type; // weapon, armor, or accessory
+            // Check class constraint
+            if (equip.forRole && equip.forRole !== hero.roleId) {
+                alert(`这件装备是${getRole(equip.forRole).name}专用的！`);
+                return;
+            }
+            const slot = equip.type;
             // If hero already has item in slot, unequip it back to inventory
             if (hero.equipment[slot]) {
-                gameData.value.equipment.push(hero.equipment[slot]);
+                addToInventory(gameData.value.equipment, hero.equipment[slot]);
+                sortInventory(gameData.value.equipment);
             }
-            // Equip new item
-            hero.equipment[slot] = equip;
-            // Remove from inventory
-            gameData.value.equipment = gameData.value.equipment.filter(e => e.id !== equip.id);
+            // Equip new item (copy from stack)
+            hero.equipment[slot] = { ...equip, count: 1 };
+            // Remove one from inventory stack
+            removeFromInventory(gameData.value.equipment, equip);
             equipTarget.value = null;
         }
 
         function unequipFromHero(hero, slot) {
             if (!hero.equipment[slot]) return;
-            gameData.value.equipment.push(hero.equipment[slot]);
+            addToInventory(gameData.value.equipment, { ...hero.equipment[slot], count: 1 });
+            sortInventory(gameData.value.equipment);
             hero.equipment[slot] = null;
         }
 
@@ -185,6 +199,15 @@ const app = createApp({
             return Math.floor(base);
         }
 
+        function getRoleLabel(roleId) {
+            const role = ROLES.find(r => r.id === roleId);
+            return role ? role.name : '';
+        }
+
+        function canEquip(equip, hero) {
+            return !equip.forRole || equip.forRole === hero.roleId;
+        }
+
         return {
             gameData, gold, currentTabId, tabs,
             battleLogs, showStageSelect, currentStage, availableStages,
@@ -192,7 +215,8 @@ const app = createApp({
             getQualityColor, getEquipTypeLabel, getEquipStatLabel,
             enhanceCost, sellPrice, enhanceEquip, sellEquip,
             gachaResult, gacha,
-            equipTarget, startEquip, equipToHero, unequipFromHero, getHeroTotalStat
+            equipTarget, startEquip, equipToHero, unequipFromHero, getHeroTotalStat,
+            getRoleLabel, canEquip
         };
     }
 });

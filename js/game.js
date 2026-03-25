@@ -21,6 +21,15 @@ function loadGame() {
             }
         });
     }
+    // Migrate old equipment - add forRole and count
+    if (data.equipment) {
+        data.equipment.forEach(e => {
+            if (!e.forRole) e.forRole = 'warrior';
+            if (!e.count) e.count = 1;
+            if (!e.id) e.id = Date.now() + Math.random();
+        });
+        sortInventory(data.equipment);
+    }
     return data;
 }
 
@@ -63,13 +72,18 @@ function generateDrops(stage) {
         const roll = Math.random();
         const quality = roll < 0.05 ? 5 : roll < 0.15 ? 4 : roll < 0.3 ? 3 : roll < 0.5 ? 2 : 1;
         const type = EQUIP_TYPES[Math.floor(Math.random() * 3)];
+        // Random role for this drop
+        const roleIds = Object.keys(EQUIP_NAMES);
+        const roleId = roleIds[Math.floor(Math.random() * roleIds.length)];
+        const names = EQUIP_NAMES[roleId];
         drops.equipment = {
-            id: Date.now() + Math.random(),
-            name: EQUIP_NAMES[type][quality - 1],
+            name: names[type][quality - 1],
             type,
             quality,
             level: 1,
-            bonus: quality * 5
+            bonus: quality * 5,
+            count: 1,
+            forRole: roleId
         };
     }
 
@@ -77,7 +91,37 @@ function generateDrops(stage) {
 }
 
 function enhanceCost(equip) { return equip.level * 50 * equip.quality; }
-function sellPrice(equip) { return equip.quality * equip.level * 20; }
+function sellPrice(equip) { return equip.quality * equip.level * 20 * equip.count; }
+
+// Add equipment to inventory with stacking
+function addToInventory(inventory, newEquip) {
+    const existing = inventory.find(e =>
+        e.name === newEquip.name && e.quality === newEquip.quality && e.forRole === newEquip.forRole
+    );
+    if (existing) {
+        existing.count += newEquip.count;
+    } else {
+        inventory.push({ ...newEquip });
+    }
+}
+
+// Remove one from stack, remove entry if count reaches 0
+function removeFromInventory(inventory, equip) {
+    const idx = inventory.findIndex(e => e.name === equip.name && e.quality === equip.quality && e.forRole === equip.forRole);
+    if (idx === -1) return;
+    inventory[idx].count--;
+    if (inventory[idx].count <= 0) {
+        inventory.splice(idx, 1);
+    }
+}
+
+// Sort inventory by quality (highest first), then by name
+function sortInventory(inventory) {
+    inventory.sort((a, b) => {
+        if (b.quality !== a.quality) return b.quality - a.quality;
+        return a.name.localeCompare(b.name, 'zh');
+    });
+}
 
 function calculateOfflineRewards(gameData) {
     const now = Date.now();
