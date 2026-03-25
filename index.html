@@ -62,7 +62,26 @@
             </div>
         </main>
         <main v-else-if="currentTabId === 'inventory'">
-            <p style="padding: 20px; text-align: center; color: #888;">背包 - 开发中...</p>
+            <div class="inventory">
+                <div v-for="equip in gameData.equipment" :key="equip.id"
+                     class="equip-card" :class="'quality-border-' + equip.quality">
+                    <div class="equip-info">
+                        <div class="equip-name" :style="{ color: getQualityColor(equip.quality) }">{{ equip.name }}</div>
+                        <div class="equip-type">{{ getEquipTypeLabel(equip.type) }} Lv.{{ equip.level }}</div>
+                        <div class="equip-bonus">+{{ equip.bonus }} {{ getEquipStatLabel(equip.type) }}</div>
+                    </div>
+                    <div class="equip-actions">
+                        <button @click="enhanceEquip(equip)" class="btn-sm"
+                                :disabled="gameData.gold < enhanceCost(equip)">
+                            强化 ({{ enhanceCost(equip) }}💰)
+                        </button>
+                        <button @click="sellEquip(equip)" class="btn-sm btn-sell">
+                            出售 ({{ sellPrice(equip) }}💰)
+                        </button>
+                    </div>
+                </div>
+                <div v-if="!gameData.equipment.length" class="empty-state">背包为空</div>
+            </div>
         </main>
         <main v-else>
             <p style="padding: 20px; text-align: center; color: #888;">商店 - 开发中...</p>

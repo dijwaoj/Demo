@@ -79,10 +79,40 @@ const app = createApp({
             return ROLES.find(r => r.id === roleId) || ROLES[0];
         }
 
+        function getQualityColor(quality) {
+            return QUALITY_COLORS[quality] || '#fff';
+        }
+
+        function getEquipTypeLabel(type) {
+            const labels = { weapon: '武器', armor: '防具', accessory: '饰品' };
+            return labels[type] || type;
+        }
+
+        function getEquipStatLabel(type) {
+            const labels = { weapon: '攻击', armor: '防御', accessory: '暴击' };
+            return labels[type] || '';
+        }
+
+        function enhanceEquip(equip) {
+            const cost = enhanceCost(equip);
+            if (gameData.value.gold >= cost) {
+                gameData.value.gold -= cost;
+                equip.level++;
+                equip.bonus = equip.quality * 5 * equip.level;
+            }
+        }
+
+        function sellEquip(equip) {
+            gameData.value.gold += sellPrice(equip);
+            gameData.value.equipment = gameData.value.equipment.filter(e => e.id !== equip.id);
+        }
+
         return {
             gameData, gold, currentTabId, tabs,
             battleLogs, showStageSelect, currentStage, availableStages,
-            selectStage, selectedHero, getRole
+            selectStage, selectedHero, getRole,
+            getQualityColor, getEquipTypeLabel, getEquipStatLabel,
+            enhanceEquip, sellEquip
         };
     }
 });

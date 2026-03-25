@@ -54,3 +54,6 @@ function generateDrops(stage) {
 
     return drops;
 }
+
+function enhanceCost(equip) { return equip.level * 50 * equip.quality; }
+function sellPrice(equip) { return equip.quality * equip.level * 20; }
