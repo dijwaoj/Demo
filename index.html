@@ -114,7 +114,7 @@
             <div class="shop">
                 <div class="gacha-section">
                     <h3>召唤冒险者</h3>
-                    <p class="gacha-desc">消耗金币召唤随机角色</p>
+                    <p class="gacha-desc">消耗金币召唤随机角色 ({{ GACHA_COST }}💰/次)</p>
                     <div class="gacha-rates">
                         <span class="rate rate-5">传说 5%</span>
                         <span class="rate rate-4">史诗 10%</span>
@@ -122,13 +122,25 @@
                         <span class="rate rate-2">优秀 20%</span>
                         <span class="rate rate-1">普通 50%</span>
                     </div>
-                    <button @click="gacha" class="btn-gacha" :disabled="gameData.gold < 200">
-                        召唤一次 (200💰)
-                    </button>
-                    <div v-if="gachaResult" class="gacha-result" :class="'quality-border-' + gachaResult.quality">
-                        <div class="gacha-icon">{{ gachaResult.icon }}</div>
-                        <div class="gacha-name" :style="{ color: getQualityColor(gachaResult.quality || 1) }">
-                            {{ gachaResult.name }}
+                    <div class="gacha-buttons">
+                        <button @click="gacha(1)" class="btn-gacha" :disabled="gameData.gold < GACHA_COST">
+                            单抽 ({{ GACHA_COST }}💰)
+                        </button>
+                        <button @click="gacha(10)" class="btn-gacha btn-gacha-10" :disabled="gameData.gold < GACHA_COST * 10">
+                            10连 ({{ GACHA_COST * 10 }}💰)
+                        </button>
+                        <button @click="gacha(maxGachaCount)" class="btn-gacha btn-gacha-max" :disabled="maxGachaCount < 1">
+                            最大 ×{{ maxGachaCount }}
+                        </button>
+                    </div>
+                    <div v-if="gachaResult && gachaResult.length" class="gacha-results">
+                        <div v-for="(r, i) in gachaResult" :key="i"
+                             class="gacha-result-mini" :class="'quality-border-' + r.quality">
+                            <span class="gacha-mini-icon">{{ r.icon }}</span>
+                            <span class="gacha-mini-name" :style="{ color: getQualityColor(r.quality || 1) }">
+                                {{ r.name }}
+                            </span>
+                            <span v-if="r.isNew" class="gacha-new">NEW</span>
                         </div>
                     </div>
                 </div>

@@ -132,29 +132,39 @@ const app = createApp({
 
         const gachaResult = ref(null);
         const equipTarget = ref(null);
+        const GACHA_COST = 200;
+        const maxGachaCount = computed(() => Math.floor(gameData.value.gold / GACHA_COST));
 
-        function gacha() {
-            if (gameData.value.gold < 200) return;
-            gameData.value.gold -= 200;
-
+        function gachaOnce() {
             const roll = Math.random();
             let roleId;
-            if (roll < 0.05) roleId = 'priest';       // 5%
-            else if (roll < 0.15) roleId = 'archer';   // 10%
-            else if (roll < 0.30) roleId = 'mage';     // 15%
-            else if (roll < 0.50) roleId = 'archer';   // 20% (duplicate pool)
-            else roleId = 'warrior';                    // 50%
+            if (roll < 0.05) roleId = 'priest';
+            else if (roll < 0.15) roleId = 'archer';
+            else if (roll < 0.30) roleId = 'mage';
+            else if (roll < 0.50) roleId = 'archer';
+            else roleId = 'warrior';
 
             const existing = gameData.value.heroes.find(h => h.roleId === roleId);
             const role = ROLES.find(r => r.id === roleId);
 
             if (existing) {
                 existing.level++;
-                gachaResult.value = { ...role, quality: 2, name: role.name + ' (等级+1)' };
+                return { ...role, quality: 2, name: role.name + ' (等级+1)', isNew: false };
             } else {
                 gameData.value.heroes.push({ roleId, level: 1, exp: 0, equipment: { weapon: null, armor: null, accessory: null } });
-                gachaResult.value = { ...role, quality: roleId === 'priest' ? 5 : roleId === 'archer' ? 4 : roleId === 'mage' ? 3 : 1 };
+                return { ...role, quality: roleId === 'priest' ? 5 : roleId === 'archer' ? 4 : roleId === 'mage' ? 3 : 1, isNew: true };
             }
+        }
+
+        function gacha(count) {
+            const cost = GACHA_COST * count;
+            if (gameData.value.gold < cost) return;
+            gameData.value.gold -= cost;
+            const results = [];
+            for (let i = 0; i < count; i++) {
+                results.push(gachaOnce());
+            }
+            gachaResult.value = results;
         }
 
         function startEquip(equip) {
@@ -214,7 +224,7 @@ const app = createApp({
             selectStage, selectedHero, getRole, logBox,
             getQualityColor, getEquipTypeLabel, getEquipStatLabel,
             enhanceCost, sellPrice, enhanceEquip, sellEquip,
-            gachaResult, gacha,
+            gachaResult, gacha, maxGachaCount, GACHA_COST,
             equipTarget, startEquip, equipToHero, unequipFromHero, getHeroTotalStat,
             getRoleLabel, canEquip
         };
