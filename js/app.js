@@ -66,6 +66,15 @@ const app = createApp({
 
         let saveInterval = null;
         onMounted(() => {
+            const rewards = calculateOfflineRewards(gameData.value);
+            if (rewards.battles > 0) {
+                gameData.value.gold += rewards.gold;
+                battleLogs.value.push({
+                    text: `离线收益：获得 ${rewards.gold} 金币 (${rewards.battles} 场战斗)`,
+                    type: 'drop'
+                });
+            }
+            gameData.value.lastOnline = Date.now();
             saveInterval = setInterval(() => saveGame(gameData.value), 30000);
             window.addEventListener('beforeunload', () => saveGame(gameData.value));
             startBattle();

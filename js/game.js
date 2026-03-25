@@ -57,3 +57,17 @@ function generateDrops(stage) {
 
 function enhanceCost(equip) { return equip.level * 50 * equip.quality; }
 function sellPrice(equip) { return equip.quality * equip.level * 20; }
+
+function calculateOfflineRewards(gameData) {
+    const now = Date.now();
+    const elapsed = Math.min(now - gameData.lastOnline, 8 * 60 * 60 * 1000);
+    const seconds = elapsed / 1000;
+    const battles = Math.floor(seconds / 3);
+    const stage = STAGES.find(s => s.id === gameData.currentStage);
+    if (!stage) return { gold: 0, battles: 0 };
+    const goldPerBattle = 10 + stage.difficulty * 5;
+    return {
+        gold: Math.floor(battles * goldPerBattle * 0.5),
+        battles
+    };
+}
