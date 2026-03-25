@@ -8,8 +8,20 @@
 </head>
 <body>
     <div id="app">
-        <h1>放置冒险者</h1>
-        <p>加载中...</p>
+        <header>
+            <h1>放置冒险者</h1>
+            <div class="currency">💰 {{ gold }}</div>
+        </header>
+        <main>
+            <p style="padding: 20px; text-align: center; color: #888;">{{ currentTabId === 'adventure' ? '冒险' : currentTabId === 'heroes' ? '角色' : currentTabId === 'inventory' ? '背包' : '商店' }} - 开发中...</p>
+        </main>
+        <nav class="tabs">
+            <button v-for="tab in tabs" :key="tab.id"
+                    :class="{ active: currentTabId === tab.id }"
+                    @click="currentTabId = tab.id">
+                {{ tab.icon }} {{ tab.name }}
+            </button>
+        </nav>
     </div>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="js/data.js"></script>
