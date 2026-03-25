@@ -12,7 +12,16 @@ const DEFAULT_SAVE = {
 function loadGame() {
     const saved = localStorage.getItem(SAVE_KEY);
     if (!saved) return JSON.parse(JSON.stringify(DEFAULT_SAVE));
-    return JSON.parse(saved);
+    const data = JSON.parse(saved);
+    // Migrate old saves - ensure heroes have equipment slots
+    if (data.heroes) {
+        data.heroes.forEach(h => {
+            if (!h.equipment) {
+                h.equipment = { weapon: null, armor: null, accessory: null };
+            }
+        });
+    }
+    return data;
 }
 
 function saveGame(data) {
