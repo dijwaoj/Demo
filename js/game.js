@@ -2,7 +2,7 @@ const SAVE_KEY = 'idle_rpg_save';
 
 const DEFAULT_SAVE = {
     gold: 100,
-    heroes: [{ roleId: 'warrior', level: 1, exp: 0 }],
+    heroes: [{ roleId: 'warrior', level: 1, exp: 0, equipment: { weapon: null, armor: null, accessory: null } }],
     equipment: [],
     currentStage: '1-1',
     maxStage: '1-1',
@@ -21,11 +21,28 @@ function saveGame(data) {
 
 function calculateBattle(heroes, stage) {
     let totalAtk = 0;
+    let totalDef = 0;
+    let totalHp = 0;
     heroes.forEach(h => {
         const role = ROLES.find(r => r.id === h.roleId);
-        if (role) totalAtk += role.atk * (1 + h.level * 0.1);
+        if (role) {
+            let atk = role.atk * (1 + h.level * 0.1);
+            let def = role.def * (1 + h.level * 0.1);
+            let hp = role.hp * (1 + h.level * 0.1);
+            // Apply equipment bonuses
+            if (h.equipment) {
+                if (h.equipment.weapon) atk += h.equipment.weapon.bonus;
+                if (h.equipment.armor) def += h.equipment.armor.bonus;
+                if (h.equipment.accessory) hp += h.equipment.accessory.bonus;
+            }
+            totalAtk += atk;
+            totalDef += def;
+            totalHp += hp;
+        }
     });
-    const win = totalAtk > stage.atk * 2;
+    // Win if total attack exceeds stage attack (reduced by defense)
+    const effectiveDmg = Math.max(totalAtk - stage.atk * 0.5, 0);
+    const win = effectiveDmg > 0 && totalHp > stage.atk * 3;
     return { win };
 }
 

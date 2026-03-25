@@ -53,10 +53,19 @@
             <div v-if="selectedHero" class="modal" @click.self="selectedHero = null">
                 <div class="hero-detail">
                     <h3>{{ getRole(selectedHero.roleId).name }} Lv.{{ selectedHero.level }}</h3>
-                    <div class="stat-row"><span>HP</span><span>{{ Math.floor(getRole(selectedHero.roleId).hp * (1 + selectedHero.level * 0.1)) }}</span></div>
-                    <div class="stat-row"><span>攻击</span><span>{{ Math.floor(getRole(selectedHero.roleId).atk * (1 + selectedHero.level * 0.1)) }}</span></div>
-                    <div class="stat-row"><span>防御</span><span>{{ Math.floor(getRole(selectedHero.roleId).def * (1 + selectedHero.level * 0.1)) }}</span></div>
+                    <div class="stat-row"><span>HP</span><span>{{ getHeroTotalStat(selectedHero, 'hp') }}</span></div>
+                    <div class="stat-row"><span>攻击</span><span>{{ getHeroTotalStat(selectedHero, 'atk') }}</span></div>
+                    <div class="stat-row"><span>防御</span><span>{{ getHeroTotalStat(selectedHero, 'def') }}</span></div>
                     <div class="stat-row"><span>暴击</span><span>{{ getRole(selectedHero.roleId).crit }}%</span></div>
+                    <h4 style="margin-top: 12px; margin-bottom: 8px;">装备</h4>
+                    <div v-for="slot in ['weapon', 'armor', 'accessory']" :key="slot" class="equip-slot">
+                        <span class="slot-label">{{ getEquipTypeLabel(slot) }}</span>
+                        <span v-if="selectedHero.equipment[slot]" class="slot-item" :style="{ color: getQualityColor(selectedHero.equipment[slot].quality) }">
+                            {{ selectedHero.equipment[slot].name }} (+{{ selectedHero.equipment[slot].bonus }})
+                            <button @click="unequipFromHero(selectedHero, slot)" class="btn-xs">卸下</button>
+                        </span>
+                        <span v-else class="slot-empty">空</span>
+                    </div>
                     <button @click="selectedHero = null" class="btn" style="margin-top: 15px; width: 100%;">关闭</button>
                 </div>
             </div>
@@ -71,6 +80,7 @@
                         <div class="equip-bonus">+{{ equip.bonus }} {{ getEquipStatLabel(equip.type) }}</div>
                     </div>
                     <div class="equip-actions">
+                        <button @click="startEquip(equip)" class="btn-sm btn-equip">装备</button>
                         <button @click="enhanceEquip(equip)" class="btn-sm"
                                 :disabled="gameData.gold < enhanceCost(equip)">
                             强化 ({{ enhanceCost(equip) }}💰)
@@ -81,6 +91,19 @@
                     </div>
                 </div>
                 <div v-if="!gameData.equipment.length" class="empty-state">背包为空</div>
+            </div>
+            <div v-if="equipTarget" class="modal" @click.self="equipTarget = null">
+                <div class="modal-content">
+                    <h3>选择角色装备 {{ equipTarget.name }}</h3>
+                    <div v-for="hero in gameData.heroes" :key="hero.roleId"
+                         class="stage-option" @click="equipToHero(hero)">
+                        <span>{{ getRole(hero.roleId).icon }} {{ getRole(hero.roleId).name }} Lv.{{ hero.level }}</span>
+                        <span v-if="hero.equipment[equipTarget.type]" class="equipped-info">
+                            (替换: {{ hero.equipment[equipTarget.type].name }})
+                        </span>
+                    </div>
+                    <button @click="equipTarget = null" class="btn">取消</button>
+                </div>
             </div>
         </main>
         <main v-else>

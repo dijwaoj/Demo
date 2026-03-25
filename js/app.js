@@ -124,6 +124,7 @@ const app = createApp({
         }
 
         const gachaResult = ref(null);
+        const equipTarget = ref(null);
 
         function gacha() {
             if (gameData.value.gold < 200) return;
@@ -144,9 +145,44 @@ const app = createApp({
                 existing.level++;
                 gachaResult.value = { ...role, quality: 2, name: role.name + ' (等级+1)' };
             } else {
-                gameData.value.heroes.push({ roleId, level: 1, exp: 0 });
+                gameData.value.heroes.push({ roleId, level: 1, exp: 0, equipment: { weapon: null, armor: null, accessory: null } });
                 gachaResult.value = { ...role, quality: roleId === 'priest' ? 5 : roleId === 'archer' ? 4 : roleId === 'mage' ? 3 : 1 };
             }
+        }
+
+        function startEquip(equip) {
+            equipTarget.value = equip;
+        }
+
+        function equipToHero(hero) {
+            if (!equipTarget.value) return;
+            const equip = equipTarget.value;
+            const slot = equip.type; // weapon, armor, or accessory
+            // If hero already has item in slot, unequip it back to inventory
+            if (hero.equipment[slot]) {
+                gameData.value.equipment.push(hero.equipment[slot]);
+            }
+            // Equip new item
+            hero.equipment[slot] = equip;
+            // Remove from inventory
+            gameData.value.equipment = gameData.value.equipment.filter(e => e.id !== equip.id);
+            equipTarget.value = null;
+        }
+
+        function unequipFromHero(hero, slot) {
+            if (!hero.equipment[slot]) return;
+            gameData.value.equipment.push(hero.equipment[slot]);
+            hero.equipment[slot] = null;
+        }
+
+        function getHeroTotalStat(hero, stat) {
+            const role = ROLES.find(r => r.id === hero.roleId);
+            if (!role) return 0;
+            let base = role[stat] * (1 + hero.level * 0.1);
+            if (stat === 'atk' && hero.equipment.weapon) base += hero.equipment.weapon.bonus;
+            if (stat === 'def' && hero.equipment.armor) base += hero.equipment.armor.bonus;
+            if (stat === 'hp' && hero.equipment.accessory) base += hero.equipment.accessory.bonus;
+            return Math.floor(base);
         }
 
         return {
@@ -155,7 +191,8 @@ const app = createApp({
             selectStage, selectedHero, getRole, logBox,
             getQualityColor, getEquipTypeLabel, getEquipStatLabel,
             enhanceCost, sellPrice, enhanceEquip, sellEquip,
-            gachaResult, gacha
+            gachaResult, gacha,
+            equipTarget, startEquip, equipToHero, unequipFromHero, getHeroTotalStat
         };
     }
 });
