@@ -154,7 +154,7 @@ const app = createApp({
             battleLogs, showStageSelect, currentStage, availableStages,
             selectStage, selectedHero, getRole, logBox,
             getQualityColor, getEquipTypeLabel, getEquipStatLabel,
-            enhanceEquip, sellEquip,
+            enhanceCost, sellPrice, enhanceEquip, sellEquip,
             gachaResult, gacha
         };
     }
