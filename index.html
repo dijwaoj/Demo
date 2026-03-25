@@ -38,7 +38,28 @@
             </div>
         </main>
         <main v-else-if="currentTabId === 'heroes'">
-            <p style="padding: 20px; text-align: center; color: #888;">角色 - 开发中...</p>
+            <div class="heroes">
+                <div v-for="hero in gameData.heroes" :key="hero.roleId"
+                     class="hero-card" :class="'quality-1'"
+                     @click="selectedHero = hero">
+                    <div class="hero-icon">{{ getRole(hero.roleId).icon }}</div>
+                    <div class="hero-info">
+                        <h4>{{ getRole(hero.roleId).name }}</h4>
+                        <p>Lv.{{ hero.level }}</p>
+                    </div>
+                </div>
+                <div v-if="!gameData.heroes.length" class="empty-state">暂无角色</div>
+            </div>
+            <div v-if="selectedHero" class="modal" @click.self="selectedHero = null">
+                <div class="hero-detail">
+                    <h3>{{ getRole(selectedHero.roleId).name }} Lv.{{ selectedHero.level }}</h3>
+                    <div class="stat-row"><span>HP</span><span>{{ Math.floor(getRole(selectedHero.roleId).hp * (1 + selectedHero.level * 0.1)) }}</span></div>
+                    <div class="stat-row"><span>攻击</span><span>{{ Math.floor(getRole(selectedHero.roleId).atk * (1 + selectedHero.level * 0.1)) }}</span></div>
+                    <div class="stat-row"><span>防御</span><span>{{ Math.floor(getRole(selectedHero.roleId).def * (1 + selectedHero.level * 0.1)) }}</span></div>
+                    <div class="stat-row"><span>暴击</span><span>{{ getRole(selectedHero.roleId).crit }}%</span></div>
+                    <button @click="selectedHero = null" class="btn" style="margin-top: 15px; width: 100%;">关闭</button>
+                </div>
+            </div>
         </main>
         <main v-else-if="currentTabId === 'inventory'">
             <p style="padding: 20px; text-align: center; color: #888;">背包 - 开发中...</p>

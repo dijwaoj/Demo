@@ -7,6 +7,7 @@ const app = createApp({
         const currentTabId = ref('adventure');
         const battleLogs = ref([]);
         const showStageSelect = ref(false);
+        const selectedHero = ref(null);
 
         const tabs = [
             { id: 'adventure', name: '冒险', icon: '⚔️' },
@@ -74,10 +75,14 @@ const app = createApp({
             if (battleInterval) clearInterval(battleInterval);
         });
 
+        function getRole(roleId) {
+            return ROLES.find(r => r.id === roleId) || ROLES[0];
+        }
+
         return {
             gameData, gold, currentTabId, tabs,
             battleLogs, showStageSelect, currentStage, availableStages,
-            selectStage
+            selectStage, selectedHero, getRole
         };
     }
 });
