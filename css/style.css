@@ -66,3 +66,21 @@ main { padding-bottom: 60px; min-height: calc(100vh - 50px); }
 .gacha-icon { font-size: 48px; margin-bottom: 8px; }
 .gacha-name { font-size: 20px; font-weight: bold; }
 @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+/* Visual polish */
+.quality-border-4, .quality-border-5 { box-shadow: 0 0 8px currentColor; }
+button { transition: all 0.2s; }
+.hero-card, .equip-card, .stage-option { transition: all 0.2s; }
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #1a1a2e; }
+::-webkit-scrollbar-thumb { background: #0f3460; border-radius: 3px; }
+
+/* Mobile responsive */
+@media (max-width: 360px) {
+    .heroes { grid-template-columns: 1fr; }
+    .tabs button { font-size: 12px; padding: 10px 4px; }
+    .gacha-rates { gap: 4px; }
+    .rate { font-size: 10px; padding: 3px 5px; }
+}
