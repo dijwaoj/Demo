@@ -12,8 +12,39 @@
             <h1>放置冒险者</h1>
             <div class="currency">💰 {{ gold }}</div>
         </header>
-        <main>
-            <p style="padding: 20px; text-align: center; color: #888;">{{ currentTabId === 'adventure' ? '冒险' : currentTabId === 'heroes' ? '角色' : currentTabId === 'inventory' ? '背包' : '商店' }} - 开发中...</p>
+        <main v-if="currentTabId === 'adventure'">
+            <div class="stage-info">
+                <h3>{{ currentStage.name }}</h3>
+                <p>难度: {{ '⭐'.repeat(Math.min(currentStage.difficulty, 10)) }}</p>
+            </div>
+            <div class="battle-log" ref="logBox">
+                <div v-for="(log, i) in battleLogs" :key="i" :class="log.type">
+                    {{ log.text }}
+                </div>
+                <div v-if="!battleLogs.length" class="empty-log">战斗即将开始...</div>
+            </div>
+            <div class="adventure-actions">
+                <button @click="showStageSelect = true" class="btn">选择关卡</button>
+            </div>
+            <div v-if="showStageSelect" class="modal">
+                <div class="modal-content">
+                    <h3>选择关卡</h3>
+                    <div v-for="stage in availableStages" :key="stage.id"
+                         class="stage-option" @click="selectStage(stage)">
+                        {{ stage.name }}
+                    </div>
+                    <button @click="showStageSelect = false" class="btn">取消</button>
+                </div>
+            </div>
+        </main>
+        <main v-else-if="currentTabId === 'heroes'">
+            <p style="padding: 20px; text-align: center; color: #888;">角色 - 开发中...</p>
+        </main>
+        <main v-else-if="currentTabId === 'inventory'">
+            <p style="padding: 20px; text-align: center; color: #888;">背包 - 开发中...</p>
+        </main>
+        <main v-else>
+            <p style="padding: 20px; text-align: center; color: #888;">商店 - 开发中...</p>
         </main>
         <nav class="tabs">
             <button v-for="tab in tabs" :key="tab.id"
