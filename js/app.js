@@ -1,4 +1,4 @@
-const { createApp, ref, computed, onMounted, onUnmounted } = Vue;
+const { createApp, ref, computed, onMounted, onUnmounted, nextTick } = Vue;
 
 const app = createApp({
     setup() {
@@ -8,6 +8,7 @@ const app = createApp({
         const battleLogs = ref([]);
         const showStageSelect = ref(false);
         const selectedHero = ref(null);
+        const logBox = ref(null);
 
         const tabs = [
             { id: 'adventure', name: '冒险', icon: '⚔️' },
@@ -24,6 +25,12 @@ const app = createApp({
             const maxIdx = STAGES.findIndex(s => s.id === gameData.value.maxStage);
             return STAGES.slice(0, maxIdx + 2);
         });
+
+        function scrollLogToBottom() {
+            nextTick(() => {
+                if (logBox.value) logBox.value.scrollTop = logBox.value.scrollHeight;
+            });
+        }
 
         function selectStage(stage) {
             gameData.value.currentStage = stage.id;
@@ -47,9 +54,7 @@ const app = createApp({
                         gameData.value.equipment.push(drops.equipment);
                         battleLogs.value.push({ text: `掉落装备: ${drops.equipment.name}`, type: 'drop' });
                     }
-                    if (drops.fragment) {
-                        battleLogs.value.push({ text: `获得碎片: ${drops.fragment.name}`, type: 'drop' });
-                    }
+                    scrollLogToBottom();
 
                     const currentIdx = STAGES.findIndex(s => s.id === gameData.value.currentStage);
                     const maxIdx = STAGES.findIndex(s => s.id === gameData.value.maxStage);
@@ -58,6 +63,7 @@ const app = createApp({
                     }
                 } else {
                     battleLogs.value.push({ text: '战斗失败...', type: 'lose' });
+                    scrollLogToBottom();
                 }
 
                 if (battleLogs.value.length > 50) battleLogs.value.shift();
@@ -73,6 +79,7 @@ const app = createApp({
                     text: `离线收益：获得 ${rewards.gold} 金币 (${rewards.battles} 场战斗)`,
                     type: 'drop'
                 });
+                scrollLogToBottom();
             }
             gameData.value.lastOnline = Date.now();
             saveInterval = setInterval(() => saveGame(gameData.value), 30000);
@@ -145,7 +152,7 @@ const app = createApp({
         return {
             gameData, gold, currentTabId, tabs,
             battleLogs, showStageSelect, currentStage, availableStages,
-            selectStage, selectedHero, getRole,
+            selectStage, selectedHero, getRole, logBox,
             getQualityColor, getEquipTypeLabel, getEquipStatLabel,
             enhanceEquip, sellEquip,
             gachaResult, gacha

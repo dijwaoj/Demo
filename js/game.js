@@ -30,7 +30,7 @@ function calculateBattle(heroes, stage) {
 }
 
 function generateDrops(stage) {
-    const drops = { gold: 0, equipment: null, fragment: null };
+    const drops = { gold: 0, equipment: null };
     drops.gold = Math.floor(10 + stage.difficulty * 5 + Math.random() * 20);
 
     if (Math.random() < 0.3) {
@@ -45,11 +45,6 @@ function generateDrops(stage) {
             level: 1,
             bonus: quality * 5
         };
-    }
-
-    if (Math.random() < 0.1) {
-        const role = ROLES[Math.floor(Math.random() * ROLES.length)];
-        drops.fragment = { roleId: role.id, name: role.name, count: 1 };
     }
 
     return drops;
