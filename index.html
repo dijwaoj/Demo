@@ -14,8 +14,14 @@
         </header>
         <main v-if="currentTabId === 'adventure'">
             <div class="stage-info">
-                <h3>{{ currentStage.name }}</h3>
-                <p>难度: {{ '⭐'.repeat(Math.min(currentStage.difficulty, 10)) }}</p>
+                <div class="stage-header">
+                    <h3>{{ currentStage.name }}</h3>
+                    <span class="difficulty">{{ '⭐'.repeat(Math.min(currentStage.difficulty, 10)) }}</span>
+                </div>
+                <button @click="autoProgress = !autoProgress"
+                        class="btn-auto" :class="{ active: autoProgress }">
+                    {{ autoProgress ? '⏸ 停止闯关' : '▶ 自动闯关' }}
+                </button>
             </div>
             <div class="battle-log" ref="logBox">
                 <div v-for="(log, i) in battleLogs" :key="i" :class="log.type">
@@ -23,17 +29,20 @@
                 </div>
                 <div v-if="!battleLogs.length" class="empty-log">战斗即将开始...</div>
             </div>
-            <div class="adventure-actions">
-                <button @click="showStageSelect = true" class="btn">选择关卡</button>
-            </div>
-            <div v-if="showStageSelect" class="modal">
-                <div class="modal-content">
-                    <h3>选择关卡</h3>
-                    <div v-for="stage in availableStages" :key="stage.id"
-                         class="stage-option" @click="selectStage(stage)">
-                        {{ stage.name }}
+            <div class="chapters">
+                <div v-for="ch in chapters" :key="ch.chapter" class="chapter">
+                    <h4 class="chapter-title">第{{ ch.chapter }}章</h4>
+                    <div class="stage-grid">
+                        <div v-for="stage in ch.stages" :key="stage.id"
+                             class="stage-cell" :class="stage.status"
+                             @click="stage.status !== 'locked' && selectStage(stage)">
+                            <span class="stage-num">{{ stage.level }}</span>
+                            <span v-if="stage.status === 'cleared'" class="stage-mark">✓</span>
+                            <span v-else-if="stage.status === 'current'" class="stage-mark">⚔️</span>
+                            <span v-else-if="stage.status === 'unlockable'" class="stage-mark">?</span>
+                            <span v-else class="stage-mark">🔒</span>
+                        </div>
                     </div>
-                    <button @click="showStageSelect = false" class="btn">取消</button>
                 </div>
             </div>
         </main>

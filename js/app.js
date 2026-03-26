@@ -9,6 +9,7 @@ const app = createApp({
         const showStageSelect = ref(false);
         const selectedHero = ref(null);
         const logBox = ref(null);
+        const autoProgress = ref(false);
 
         const tabs = [
             { id: 'adventure', name: '冒险', icon: '⚔️' },
@@ -24,6 +25,24 @@ const app = createApp({
         const availableStages = computed(() => {
             const maxIdx = STAGES.findIndex(s => s.id === gameData.value.maxStage);
             return STAGES.slice(0, maxIdx + 2);
+        });
+
+        const chapters = computed(() => {
+            const maxIdx = STAGES.findIndex(s => s.id === gameData.value.maxStage);
+            const currentIdx = STAGES.findIndex(s => s.id === gameData.value.currentStage);
+            const result = [];
+            for (let ch = 1; ch <= 3; ch++) {
+                const chStages = STAGES.filter(s => s.chapter === ch).map((s, i) => {
+                    const globalIdx = (ch - 1) * 10 + i;
+                    let status = 'locked';
+                    if (globalIdx < maxIdx) status = 'cleared';
+                    else if (globalIdx === maxIdx) status = 'current';
+                    else if (globalIdx === maxIdx + 1) status = 'unlockable';
+                    return { ...s, status };
+                });
+                result.push({ chapter: ch, stages: chStages });
+            }
+            return result;
         });
 
         function scrollLogToBottom() {
@@ -55,15 +74,26 @@ const app = createApp({
                         sortInventory(gameData.value.equipment);
                         battleLogs.value.push({ text: `掉落装备: ${drops.equipment.name} (×${drops.equipment.count})`, type: 'drop' });
                     }
-                    scrollLogToBottom();
 
                     const currentIdx = STAGES.findIndex(s => s.id === gameData.value.currentStage);
                     const maxIdx = STAGES.findIndex(s => s.id === gameData.value.maxStage);
                     if (currentIdx >= maxIdx && currentIdx < STAGES.length - 1) {
                         gameData.value.maxStage = STAGES[currentIdx + 1].id;
                     }
+
+                    // Auto progress to next stage
+                    if (autoProgress.value && currentIdx < STAGES.length - 1) {
+                        gameData.value.currentStage = STAGES[currentIdx + 1].id;
+                        battleLogs.value.push({ text: `➡️ 前进到 ${STAGES[currentIdx + 1].name}`, type: 'drop' });
+                    }
+
+                    scrollLogToBottom();
                 } else {
                     battleLogs.value.push({ text: '战斗失败...', type: 'lose' });
+                    if (autoProgress.value) {
+                        autoProgress.value = false;
+                        battleLogs.value.push({ text: '⛔ 自动闯关结束', type: 'lose' });
+                    }
                     scrollLogToBottom();
                 }
 
@@ -220,8 +250,9 @@ const app = createApp({
 
         return {
             gameData, gold, currentTabId, tabs,
-            battleLogs, showStageSelect, currentStage, availableStages,
+            battleLogs, showStageSelect, currentStage, availableStages, chapters,
             selectStage, selectedHero, getRole, logBox,
+            autoProgress,
             getQualityColor, getEquipTypeLabel, getEquipStatLabel,
             enhanceCost, sellPrice, enhanceEquip, sellEquip,
             gachaResult, gacha, maxGachaCount, GACHA_COST,
