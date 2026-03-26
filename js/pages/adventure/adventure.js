@@ -10,17 +10,35 @@ const AdventurePage = {
                 <span class="hero-seq">序列{{ activeHero.sequence }}</span>
             </div>
 
-            <!-- 关卡信息 -->
-            <div class="stage-info">
-                <div class="stage-header">
-                    <h3>{{ currentStageData.name }}</h3>
-                    <span class="stage-type" v-if="currentStageData.type !== 'normal'">
-                        {{ currentStageData.icon }}
-                    </span>
+            <!-- 战斗区域 -->
+            <div class="battle-area">
+                <canvas id="effect-canvas" ref="effectCanvas"></canvas>
+                <div class="battle-info">
+                    <div class="stage-info">
+                        <div class="stage-header">
+                            <h3>{{ currentStageData.name }}</h3>
+                            <span class="stage-type" v-if="currentStageData.type !== 'normal'">
+                                {{ currentStageData.icon }}
+                            </span>
+                        </div>
+                        <button @click="autoProgress = !autoProgress"
+                                class="btn-auto" :class="{ active: autoProgress }">
+                            {{ autoProgress ? '⏸ 停止闯关' : '▶ 自动闯关' }}
+                        </button>
+                    </div>
                 </div>
-                <button @click="autoProgress = !autoProgress"
-                        class="btn-auto" :class="{ active: autoProgress }">
-                    {{ autoProgress ? '⏸ 停止闯关' : '▶ 自动闯关' }}
+            </div>
+
+            <!-- 大招技能按钮 -->
+            <div v-if="activeHero && activeHero.sequence <= 5" class="ultimate-skills">
+                <button v-for="skill in ultimateSkills" :key="skill.id"
+                        class="btn-ultimate"
+                        :disabled="skillCooldowns[skill.id] > 0"
+                        @click="useUltimate(skill)">
+                    <span class="skill-name">{{ skill.name }}</span>
+                    <span v-if="skillCooldowns[skill.id] > 0" class="cooldown">
+                        {{ skillCooldowns[skill.id] }}s
+                    </span>
                 </button>
             </div>
 
@@ -57,11 +75,22 @@ const AdventurePage = {
         const gameData = inject('gameData');
         const battleLogs = inject('battleLogs');
         const logBox = ref(null);
+        const effectCanvas = ref(null);
         const autoProgress = ref(false);
+        const skillCooldowns = ref({});
 
         // 获取当前活跃英雄
         const activeHero = computed(() => {
             return gameData.value.heroes.find(h => h.id === gameData.value.activeHeroId) || gameData.value.heroes[0];
+        });
+
+        // 获取大招技能
+        const ultimateSkills = computed(() => {
+            if (!activeHero.value) return [];
+            if (activeHero.value.sequence > 5) return [];
+            if (typeof getSkillsBySequence !== 'function') return [];
+            return getSkillsBySequence(activeHero.value.pathway, activeHero.value.sequence)
+                .filter(s => s.type === 'ultimate');
         });
 
         function getPathway(id) {
@@ -97,6 +126,33 @@ const AdventurePage = {
             }
             return result;
         });
+
+        // 使用大招
+        function useUltimate(skill) {
+            if (!skill || skillCooldowns.value[skill.id] > 0) return;
+            
+            // 播放粒子特效
+            if (effectCanvas.value && typeof playEffect === 'function') {
+                const animation = skill.animation || 'default';
+                playEffect(animation, effectCanvas.value);
+            }
+
+            // 造成伤害
+            const damage = skill.effect.value || 200;
+            battleLogs.value.push({ text: `💥 释放${skill.name}！造成${damage}%伤害！`, type: 'win' });
+
+            // 设置冷却
+            skillCooldowns.value[skill.id] = skill.cooldown || 30;
+            const cdInterval = setInterval(() => {
+                if (skillCooldowns.value[skill.id] > 0) {
+                    skillCooldowns.value[skill.id]--;
+                } else {
+                    clearInterval(cdInterval);
+                }
+            }, 1000);
+
+            scrollLogToBottom();
+        }
 
         function scrollLogToBottom() {
             nextTick(() => {
@@ -211,14 +267,23 @@ const AdventurePage = {
             };
         }
 
-        onMounted(() => startBattle());
+        onMounted(() => {
+            startBattle();
+            // 初始化canvas尺寸
+            if (effectCanvas.value) {
+                const rect = effectCanvas.value.parentElement.getBoundingClientRect();
+                effectCanvas.value.width = rect.width;
+                effectCanvas.value.height = rect.height;
+            }
+        });
         onUnmounted(() => {
             if (battleInterval) clearInterval(battleInterval);
         });
 
         return {
             gameData, activeHero, currentStageData, chapters, battleLogs, logBox, autoProgress,
-            getPathway, getSequenceName, selectStage
+            effectCanvas, ultimateSkills, skillCooldowns,
+            getPathway, getSequenceName, selectStage, useUltimate
         };
     }
 };

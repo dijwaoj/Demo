@@ -33,3 +33,17 @@
 .stage-option { padding: 10px; margin: 5px 0; background: #0f3460; border-radius: 6px; cursor: pointer; }
 .stage-option:hover { background: #1a4a8a; }
 .stage-option.disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* 战斗区域 */
+.battle-area { position: relative; margin: 10px; background: #0f3460; border-radius: 12px; min-height: 120px; overflow: hidden; }
+.battle-area #effect-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.battle-area .battle-info { position: relative; z-index: 1; }
+.battle-area .stage-info { margin: 0; background: transparent; }
+
+/* 大招技能 */
+.ultimate-skills { display: flex; gap: 8px; justify-content: center; padding: 10px; flex-wrap: wrap; }
+.btn-ultimate { padding: 10px 16px; border: 2px solid #fb923c; border-radius: 8px; background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; cursor: pointer; font-size: 13px; position: relative; box-shadow: 0 0 10px rgba(251, 146, 60, 0.5); transition: all 0.2s; }
+.btn-ultimate:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 0 20px rgba(251, 146, 60, 0.8); }
+.btn-ultimate:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+.btn-ultimate .skill-name { font-weight: bold; }
+.btn-ultimate .cooldown { display: block; font-size: 11px; margin-top: 2px; color: #fcd34d; }
