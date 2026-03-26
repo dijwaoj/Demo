@@ -66,13 +66,16 @@ function calculateBattle(heroes, stage) {
 
 function generateDrops(stage) {
     const drops = { gold: 0, equipment: null };
-    drops.gold = Math.floor(10 + stage.difficulty * 5 + Math.random() * 20);
+    const bonus = stage.dropBonus || 1;
+    drops.gold = Math.floor((10 + stage.difficulty * 5 + Math.random() * 20) * bonus);
 
-    if (Math.random() < 0.3) {
+    const dropChance = Math.min(0.3 * bonus, 0.8);
+    if (Math.random() < dropChance) {
         const roll = Math.random();
-        const quality = roll < 0.05 ? 5 : roll < 0.15 ? 4 : roll < 0.3 ? 3 : roll < 0.5 ? 2 : 1;
+        // Boss stages have better quality chance
+        const qBonus = bonus > 1.5 ? 0.1 : 0;
+        const quality = roll < (0.05 + qBonus) ? 5 : roll < (0.15 + qBonus) ? 4 : roll < (0.3 + qBonus) ? 3 : roll < 0.5 ? 2 : 1;
         const type = EQUIP_TYPES[Math.floor(Math.random() * 3)];
-        // Random role for this drop
         const roleIds = Object.keys(EQUIP_NAMES);
         const roleId = roleIds[Math.floor(Math.random() * roleIds.length)];
         const names = EQUIP_NAMES[roleId];

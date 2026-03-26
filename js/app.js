@@ -248,11 +248,36 @@ const app = createApp({
             return !equip.forRole || equip.forRole === hero.roleId;
         }
 
+        function autoEquipAll() {
+            const inv = gameData.value.equipment;
+            gameData.value.heroes.forEach(hero => {
+                EQUIP_TYPES.forEach(slot => {
+                    // Find best equipment for this slot and class
+                    const candidates = inv.filter(e => e.type === slot && canEquip(e, hero));
+                    if (candidates.length === 0) return;
+                    // Sort by quality desc, bonus desc
+                    candidates.sort((a, b) => b.quality - a.quality || b.bonus - a.bonus);
+                    const best = candidates[0];
+                    // Compare with current equipped
+                    const current = hero.equipment[slot];
+                    if (current && current.quality >= best.quality && current.bonus >= best.bonus) return;
+                    // Unequip current
+                    if (current) {
+                        addToInventory(inv, { ...current, count: 1 });
+                    }
+                    // Equip best
+                    hero.equipment[slot] = { ...best, count: 1 };
+                    removeFromInventory(inv, best);
+                });
+            });
+            sortInventory(inv);
+        }
+
         return {
             gameData, gold, currentTabId, tabs,
             battleLogs, showStageSelect, currentStage, availableStages, chapters,
             selectStage, selectedHero, getRole, logBox,
-            autoProgress,
+            autoProgress, autoEquipAll,
             getQualityColor, getEquipTypeLabel, getEquipStatLabel,
             enhanceCost, sellPrice, enhanceEquip, sellEquip,
             gachaResult, gacha, maxGachaCount, GACHA_COST,
