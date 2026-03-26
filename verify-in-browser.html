@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pathway Data Verification</title>
+</head>
+<body>
+    <h1>Pathway Data Verification</h1>
+    <div id="results"></div>
+    
+    <!-- Load the pathway data -->
+    <script src="./js/data/pathways.js"></script>
+    <!-- Load the stage data -->
+    <script src="./js/data/stages.js"></script>
+    
+    <script>
+        // Wait a moment for scripts to load
+        setTimeout(function() {
+            try {
+                var results = document.getElementById('results');
+                
+                // Test pathway data
+                var groupCount = PATHWAY_GROUPS.length;
+                var pathwayCount = PATHWAYS.length;
+                
+                results.innerHTML = 
+                    '<h2>Verification Results</h2>' +
+                    '<p>PATHWAY_GROUPS.length: ' + groupCount + ' (expected: 7) ' + 
+                    (groupCount === 7 ? '✓ PASS' : '✗ FAIL') + '</p>' +
+                    '<p>PATHWAYS.length: ' + pathwayCount + ' (expected: 22) ' + 
+                    (pathwayCount === 22 ? '✓ PASS' : '✗ FAIL') + '</p>' +
+                    '<p>STAGES.length: ' + STAGES.length + ' (expected: 30) ' + 
+                    (STAGES.length === 30 ? '✓ PASS' : '✗ FAIL') + '</p>';
+                
+                // Add details
+                results.innerHTML += 
+                    '<h2>Pathway Groups</h2><ul>' +
+                    PATHWAY_GROUPS.map(function(g) { 
+                        return '<li>' + g.name + ': ' + g.pathways.join(', ') + '</li>';
+                    }).join('') + '</ul>';
+                    
+                results.innerHTML += 
+                    '<h2>First and Last Pathways</h2>' +
+                    '<p>First: ' + PATHWAYS[0].name + ' (' + PATHWAYS[0].group + ')</p>' +
+                    '<p>Last: ' + PATHWAYS[PATHWAYS.length-1].name + ' (' + PATHWAYS[PATHWAYS.length-1].group + ')</p>';
+                    
+                results.innerHTML += 
+                    '<h2>First and Last Stages</h2>' +
+                    '<p>First: ' + STAGES[0].name + '</p>' +
+                    '<p>Last: ' + STAGES[STAGES.length-1].name + '</p>';
+                    
+            } catch(e) {
+                document.getElementById('results').innerHTML = 
+                    '<p>Error: ' + e.message + '</p>';
+                console.error(e);
+            }
+        }, 100);
+    </script>
+</body>
+</html>

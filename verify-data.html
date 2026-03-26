@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify Pathway Data</title>
+</head>
+<body>
+    <h1>Pathway Data Verification</h1>
+    <div id="output"></div>
+    
+    <script src="./js/data/pathways.js"></script>
+    <script src="./js/data/stages.js"></script>
+    
+    <script>
+        // Wait for scripts to load
+        setTimeout(function() {
+            try {
+                var output = document.getElementById('output');
+                
+                // Check pathway groups
+                var groupCount = PATHWAY_GROUPS.length;
+                var groupPass = groupCount === 7;
+                
+                // Check pathways
+                var pathwayCount = PATHWAYS.length;
+                var pathwayPass = pathwayCount === 22;
+                
+                // Check stages (should be 3 chapters * 10 levels = 30)
+                var stageCount = STAGES.length;
+                var stagePass = stageCount === 30;
+                
+                output.innerHTML = 
+                    '<h2>Verification Results</h2>' +
+                    '<p>PATHWAY_GROUPS.length: ' + groupCount + ' (expected: 7) <span class="result">' + (groupPass ? '✓ PASS' : '✗ FAIL') + '</span></p>' +
+                    '<p>PATHWAYS.length: ' + pathwayCount + ' (expected: 22) <span class="result">' + (pathwayPass ? '✓ PASS' : '✗ FAIL') + '</span></p>' +
+                    '<p>STAGES.length: ' + stageCount + ' (expected: 30) <span class="result">' + (stagePass ? '✓ PASS' : '✗ FAIL') + '</span></p>';
+                
+                if (groupPass && pathwayPass && stagePass) {
+                    output.innerHTML += '<p><strong>All tests passed!</strong></p>';
+                } else {
+                    output.innerHTML += '<p><strong>Some tests failed.</strong></p>';
+                }
+                
+                // Show some sample data
+                output.innerHTML += 
+                    '<h2>Sample Data</h2>' +
+                    '<p>First pathway group: ' + PATHWAY_GROUPS[0].name + '</p>' +
+                    '<p>Last pathway group: ' + PATHWAY_GROUPS[PATHWAY_GROUPS.length-1].name + '</p>' +
+                    '<p>First pathway: ' + PATHWAYS[0].name + ' (' + PATHWAYS[0].group + ')</p>' +
+                    '<p>Last pathway: ' + PATHWAYS[PATHWAYS.length-1].name + ' (' + PATHWAYS[PATHWAYS.length-1].group + ')</p>' +
+                    '<p>First stage: ' + STAGES[0].name + '</p>' +
+                    '<p>Last stage: ' + STAGES[STAGES.length-1].name + '</p>';
+                
+            } catch(e) {
+                document.getElementById('output').innerHTML = 
+                    '<p>Error: ' + e.message + '</p>';
+                console.error(e);
+            }
+        }, 100);
+    </script>
+    <style>
+        .result { font-weight: bold; }
+        .result.pass { color: green; }
+        .result.fail { color: red; }
+    </style>
+</body>
+</html>

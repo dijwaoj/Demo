@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pathway Data Verification</title>
+</head>
+<body>
+    <h1>Pathway Data Verification</h1>
+    <div id="output"></div>
+    
+    <script src="./js/data/pathways.js"></script>
+    <script src="./js/data/stages.js"></script>
+    <script>
+        // Wait for scripts to load
+        setTimeout(() => {
+            try {
+                const output = document.getElementById('output');
+                
+                // Test pathway data
+                output.innerHTML += '<h2>Pathway Groups Test</h2>';
+                output.innerHTML += `<p>PATHWAY_GROUPS.length: ${PATHWAY_GROUPS.length} (expected: 7)</p>`;
+                output.innerHTML += `<p>Correct: ${PATHWAY_GROUPS.length === 7 ? '✓' : '✗'}</p>`;
+                
+                output.innerHTML += '<h2>Pathways Test</h2>';
+                output.innerHTML += `<p>PATHWAYS.length: ${PATHWAYS.length} (expected: 22)</p>`;
+                output.innerHTML += `<p>Correct: ${PATHWAYS.length === 22 ? '✓' : '✗'}</p>`;
+                
+                // Test stage data
+                output.innerHTML += '<h2>Stages Test</h2>';
+                output.innerHTML += `<p>STAGES.length: ${STAGES.length} (expected: 30)</p>`;
+                output.innerHTML += `<p>Correct: ${STAGES.length === 30 ? '✓' : '✗'}</p>`;
+                
+                // Show first and last pathway
+                output.innerHTML += '<h2>Sample Data</h2>';
+                output.innerHTML += `<p>First pathway: ${PATHWAYS[0].name} (${PATHWAYS[0].group})</p>`;
+                output.innerHTML += `<p>Last pathway: ${PATHWAYS[PATHWAYS.length-1].name} (${PATHWAYS[PATHWAYS.length-1].group})</p>`;
+                
+                // Show first and last stage
+                output.innerHTML += `<p>First stage: ${STAGES[0].name}</p>`;
+                output.innerHTML += `<p>Last stage: ${STAGES[STAGES.length-1].name}</p>`;
+                
+                // Show pathway group details
+                output.innerHTML += '<h2>Pathway Groups Details</h2>';
+                output.innerHTML += '<ul>';
+                PATHWAY_GROUPS.forEach(group => {
+                    output.innerHTML += `<li>${group.name}: ${group.pathways.join(', ')}</li>`;
+                });
+                output.innerHTML += '</ul>';
+                
+            } catch (error) {
+                document.getElementById('output').innerHTML = `<p>Error: ${error.message}</p>`;
+                console.error(error);
+            }
+        }, 100);
+    </script>
+</body>
+</html>

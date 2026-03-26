@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Pathway Data</title>
+</head>
+<body>
+    <h1>Testing Pathway Data</h1>
+    <div id="results"></div>
+    
+    <script src="./js/data/pathways.js"></script>
+    <script>
+        // Wait for scripts to load
+        setTimeout(() => {
+            try {
+                const resultsDiv = document.getElementById('results');
+                
+                // Check if PATHWAY_GROUPS and PATHWAYS are defined
+                if (typeof PATHWAY_GROUPS !== 'undefined' && typeof PATHWAYS !== 'undefined') {
+                    resultsDiv.innerHTML = `
+                        <p>PATHWAY_GROUPS.length: ${PATHWAY_GROUPS.length} (expected: 7)</p>
+                        <p>PATHWAYS.length: ${PATHWAYS.length} (expected: 22)</p>
+                        <p>PATHWAY_GROUPS correct: ${PATHWAY_GROUPS.length === 7}</p>
+                        <p>PATHWAYS correct: ${PATHWAYS.length === 22}</p>
+                        
+                        <h2>Pathway Groups:</h2>
+                        <ul>
+                            ${PATHWAY_GROUPS.map(g => `<li>${g.name} (${g.pathways.length} pathways)</li>`).join('')}
+                        </ul>
+                        
+                        <h2>First few pathways:</h2>
+                        <ul>
+                            ${PATHWAYS.slice(0, 5).map(p => `<li>${p.name} (${p.group}) - Sequences: ${p.sequences.length}</li>`).join('')}
+                        </ul>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = '<p>Error: PATHWAY_GROUPS or PATHWAYS not defined</p>';
+                }
+            } catch (error) {
+                document.getElementById('results').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }, 100);
+    </script>
+</body>
+</html>
