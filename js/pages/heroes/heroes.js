@@ -174,7 +174,7 @@ const HeroesPage = {
             }
         }
 
-        function promoteHero(hero) {
+        function doPromoteHero(hero) {
             if (typeof promoteHero === 'function') {
                 if (promoteHero(hero, gameData.value)) {
                     alert('晋升成功！');
@@ -187,7 +187,7 @@ const HeroesPage = {
             PATHWAY_GROUPS, PATHWAYS,
             getPathway, getSequenceName, getHeroStat, getHeroSkillsList,
             getEquipLabel, getQualityColor, getPromotionCost,
-            selectHero, setActiveHero, addNewHero, promoteHero
+            selectHero, setActiveHero, addNewHero, promoteHero: doPromoteHero
         };
     }
 };
