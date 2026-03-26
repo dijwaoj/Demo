@@ -3,14 +3,14 @@ const ShopPage = {
         <div class="shop-page">
             <!-- 途径选择 -->
             <div class="pathway-select-section" v-if="!selectedPathway">
-                <h3>选择途径召唤</h3>
-                <div v-for="group in PATHWAY_GROUPS" :key="group.id" class="pathway-group">
+                <h3 style="padding: 10px;">选择途径召唤</h3>
+                <div v-for="group in PATHWAY_GROUPS" :key="group.id" class="pathway-group" style="padding: 0 10px;">
                     <h4 class="group-title" :style="{ color: group.color }">
                         {{ group.icon }} {{ group.name }}
                     </h4>
-                    <div class="pathway-options">
+                    <div class="pathway-options-h">
                         <div v-for="pwId in group.pathways" :key="pwId" 
-                             class="pathway-option"
+                             class="pathway-option-h"
                              :style="{ borderColor: getPathway(pwId)?.color }"
                              @click="selectPathway(pwId)">
                             <span class="pw-icon">{{ getPathway(pwId)?.icon }}</span>

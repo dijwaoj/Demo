@@ -32,6 +32,7 @@ const HeroesPage = {
                     <div>
                         <h3>{{ getPathway(selectedHero.pathway)?.name }}</h3>
                         <p>{{ getSequenceName(selectedHero.pathway, selectedHero.sequence) }} · Lv.{{ selectedHero.level }}</p>
+                        <p class="exp-bar">经验: {{ selectedHero.exp || 0 }} / {{ selectedHero.level * 100 }}</p>
                     </div>
                 </div>
                 
@@ -44,11 +45,14 @@ const HeroesPage = {
 
                 <div class="detail-skills">
                     <h4>技能</h4>
-                    <div v-for="skill in getHeroSkillsList(selectedHero)" :key="skill.id" class="skill-item">
-                        <span class="skill-type" :class="skill.type">{{ skill.type === 'passive' ? '被动' : skill.type === 'ultimate' ? '大招' : '主动' }}</span>
-                        <span class="skill-name">{{ skill.name }}</span>
-                        <span class="skill-desc">{{ skill.desc }}</span>
+                    <div v-for="skill in getHeroSkillsList(selectedHero)" :key="skill.id" class="skill-item" :class="skill.type">
+                        <div class="skill-header">
+                            <span class="skill-type-badge" :class="skill.type">{{ skill.type === 'passive' ? '被动' : skill.type === 'ultimate' ? '大招' : '主动' }}</span>
+                            <span class="skill-name">{{ skill.name }}</span>
+                        </div>
+                        <div class="skill-desc">{{ skill.desc }}</div>
                     </div>
+                    <div v-if="!getHeroSkillsList(selectedHero).length" class="empty-skills">暂无技能</div>
                 </div>
 
                 <div class="detail-equip">
@@ -95,9 +99,9 @@ const HeroesPage = {
                         <h4 class="group-title" :style="{ color: group.color }">
                             {{ group.icon }} {{ group.name }}
                         </h4>
-                        <div class="pathway-options">
+                        <div class="pathway-options-h">
                             <div v-for="pwId in group.pathways" :key="pwId" 
-                                 class="pathway-option"
+                                 class="pathway-option-h"
                                  :style="{ borderColor: getPathway(pwId)?.color }"
                                  @click="addNewHero(pwId)">
                                 <span class="pw-icon">{{ getPathway(pwId)?.icon }}</span>

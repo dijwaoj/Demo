@@ -184,6 +184,19 @@ const AdventurePage = {
                     gameData.value.gold += gold;
                     battleLogs.value.push({ text: `战斗胜利！获得 ${gold} 金币`, type: 'win' });
 
+                    // 经验获取
+                    const expGain = Math.floor(10 + stage.difficulty * 3);
+                    activeHero.value.exp = (activeHero.value.exp || 0) + expGain;
+                    battleLogs.value.push({ text: `获得 ${expGain} 经验`, type: 'win' });
+
+                    // 升级检查
+                    const expNeeded = activeHero.value.level * 100;
+                    if (activeHero.value.exp >= expNeeded) {
+                        activeHero.value.exp -= expNeeded;
+                        activeHero.value.level++;
+                        battleLogs.value.push({ text: `🎉 升级！Lv.${activeHero.value.level}`, type: 'drop' });
+                    }
+
                     // 装备掉落
                     if (Math.random() < 0.3 * stage.dropBonus) {
                         const equip = generatePathwayEquipment(activeHero.value.pathway);

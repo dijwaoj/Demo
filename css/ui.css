@@ -80,8 +80,59 @@
 .empty-state { text-align: center; padding: 40px; color: #888; }
 .hero-card, .equip-card, .stage-option { transition: all 0.2s; }
 
+/* Pathway horizontal layout */
+.pathway-options-h { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.pathway-option-h { background: #0f3460; border-radius: 8px; padding: 10px 14px; cursor: pointer; border: 2px solid transparent; text-align: center; flex: 1; min-width: 80px; max-width: 120px; }
+.pathway-option-h:hover { background: #1a4a8a; }
+.pathway-option-h .pw-icon { display: block; font-size: 24px; margin-bottom: 4px; }
+.pathway-option-h .pw-name { display: block; font-size: 12px; }
+
+/* Hero detail */
+.hero-detail-section { padding: 10px; }
+.detail-header { display: flex; gap: 12px; align-items: center; padding: 12px; background: #16213e; border-radius: 8px; border-left: 4px solid; margin-bottom: 10px; }
+.detail-icon { font-size: 36px; }
+.detail-header h3 { font-size: 16px; margin-bottom: 2px; }
+.detail-header p { font-size: 13px; color: #888; }
+.exp-bar { font-size: 12px; color: #fbbf24 !important; }
+.detail-stats { background: #16213e; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+.detail-skills { background: #16213e; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+.detail-skills h4 { font-size: 14px; color: #888; margin-bottom: 8px; }
+.skill-item { background: #0f3460; border-radius: 6px; padding: 8px; margin-bottom: 6px; border-left: 3px solid #888; }
+.skill-item.passive { border-left-color: #4ade80; }
+.skill-item.active { border-left-color: #60a5fa; }
+.skill-item.ultimate { border-left-color: #fb923c; }
+.skill-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.skill-type-badge { font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: bold; }
+.skill-type-badge.passive { background: #166534; color: #4ade80; }
+.skill-type-badge.active { background: #1e3a8a; color: #60a5fa; }
+.skill-type-badge.ultimate { background: #78350f; color: #fb923c; }
+.skill-name { font-weight: bold; font-size: 14px; }
+.skill-desc { font-size: 12px; color: #aaa; }
+.empty-skills { text-align: center; padding: 10px; color: #555; }
+.detail-equip { background: #16213e; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+.detail-promotion { background: #16213e; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+.detail-actions { padding: 10px; }
+.btn-promote { background: linear-gradient(135deg, #8b5cf6, #6366f1); width: 100%; margin-top: 8px; }
+.hero-card.active { border-color: #fbbf24; }
+.active-badge { background: #fbbf24; color: #000; font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: bold; }
+.hero-level { font-size: 12px; color: #aaa; }
+.seq-name { font-size: 13px; color: #60a5fa; }
+.hero-card.add-hero { border-style: dashed; border-color: #555; }
+
+/* Pathway select */
+.pathway-select { max-width: 400px; }
+.pathway-group { margin-bottom: 15px; }
+.group-title { font-size: 14px; margin-bottom: 8px; }
+.pathway-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pathway-option { background: #0f3460; border-radius: 8px; padding: 10px; cursor: pointer; border: 2px solid transparent; text-align: center; }
+.pathway-option:hover { background: #1a4a8a; }
+.pathway-option .pw-icon { display: block; font-size: 24px; margin-bottom: 4px; }
+.pathway-option .pw-name { display: block; font-size: 12px; }
+
 @media (max-width: 360px) {
     .heroes { grid-template-columns: 1fr; }
     .gacha-rates { gap: 4px; }
     .rate { font-size: 10px; padding: 3px 5px; }
+    .pathway-options-h { flex-wrap: wrap; }
+    .pathway-option-h { min-width: 70px; }
 }
