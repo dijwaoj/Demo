@@ -1,0 +1,25 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: #eee; }
+#app { max-width: 480px; margin: 0 auto; min-height: 100vh; }
+
+header { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #16213e; }
+header h1 { font-size: 18px; }
+.currency { font-size: 18px; }
+main { padding-bottom: 60px; min-height: calc(100vh - 50px); }
+
+.tabs { display: flex; position: fixed; bottom: 0; width: 100%; max-width: 480px; background: #16213e; }
+.tabs button { flex: 1; padding: 12px; border: none; background: transparent; color: #888; cursor: pointer; font-size: 14px; }
+.tabs button.active { color: #fff; background: #0f3460; }
+
+/* Visual polish */
+button { transition: all 0.2s; }
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #1a1a2e; }
+::-webkit-scrollbar-thumb { background: #0f3460; border-radius: 3px; }
+
+/* Mobile responsive */
+@media (max-width: 360px) {
+    .tabs button { font-size: 12px; padding: 10px 4px; }
+}

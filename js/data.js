@@ -1,3 +1,11 @@
+// ===== 角色数据 =====
+const ROLES = [
+    { id: 'warrior', name: '战士', icon: '⚔️', hp: 120, atk: 15, def: 12, crit: 5 },
+    { id: 'mage', name: '法师', icon: '🔮', hp: 80, atk: 25, def: 5, crit: 10 },
+    { id: 'archer', name: '弓手', icon: '🏹', hp: 90, atk: 20, def: 8, crit: 15 },
+    { id: 'priest', name: '牧师', icon: '✝️', hp: 100, atk: 10, def: 10, crit: 5 }
+];
+
 // ===== 途径数据 =====
 const PATHWAYS = [
     {
@@ -55,6 +63,16 @@ const PATHWAYS = [
         accessories: ['律师徽章', '辩论戒指', '公证项链', '法官之冠', '惩戒护符', '律令手链', '秩序之印', '立法徽记', '主教圣符', '黑皇帝神印']
     }
 ];
+
+// ===== 装备名称数据 =====
+const EQUIP_NAMES = {};
+PATHWAYS.forEach(p => {
+    EQUIP_NAMES[p.id] = {
+        weapon: p.weapons.slice(0, 5),
+        armor: p.armors.slice(0, 5),
+        accessory: p.accessories.slice(0, 5)
+    };
+});
 
 const QUALITY_NAMES = ['普通', '优秀', '精良', '史诗', '传说'];
 const QUALITY_COLORS = { 1: '#fff', 2: '#4ade80', 3: '#60a5fa', 4: '#a78bfa', 5: '#fb923c' };

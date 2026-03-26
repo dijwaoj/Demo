@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>放置冒险者</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/battle.css">
+    <link rel="stylesheet" href="css/ui.css">
 </head>
 <body>
     <div id="app">
@@ -12,151 +14,7 @@
             <h1>放置冒险者</h1>
             <div class="currency">💰 {{ gold }}</div>
         </header>
-        <main v-if="currentTabId === 'adventure'">
-            <div class="stage-info">
-                <div class="stage-header">
-                    <h3>{{ currentStage.name }}</h3>
-                    <span class="difficulty">{{ '⭐'.repeat(Math.min(currentStage.difficulty, 10)) }}</span>
-                </div>
-                <button @click="autoProgress = !autoProgress"
-                        class="btn-auto" :class="{ active: autoProgress }">
-                    {{ autoProgress ? '⏸ 停止闯关' : '▶ 自动闯关' }}
-                </button>
-            </div>
-            <div class="battle-log" ref="logBox">
-                <div v-for="(log, i) in battleLogs" :key="i" :class="log.type">
-                    {{ log.text }}
-                </div>
-                <div v-if="!battleLogs.length" class="empty-log">战斗即将开始...</div>
-            </div>
-            <div class="chapters">
-                <div v-for="ch in chapters" :key="ch.chapter" class="chapter">
-                    <h4 class="chapter-title">第{{ ch.chapter }}章</h4>
-                    <div class="stage-grid">
-                        <div v-for="stage in ch.stages" :key="stage.id"
-                             class="stage-cell" :class="[stage.status, stage.type]"
-                             @click="stage.status !== 'locked' && selectStage(stage)">
-                            <span class="stage-num">{{ stage.level }}</span>
-                            <span class="stage-icon">{{ stage.icon || '' }}</span>
-                            <span v-if="stage.status === 'cleared'" class="stage-mark">✓</span>
-                            <span v-else-if="stage.status === 'current'" class="stage-mark">⚔️</span>
-                            <span v-else-if="stage.status === 'unlockable'" class="stage-mark">?</span>
-                            <span v-else class="stage-mark">🔒</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-        <main v-else-if="currentTabId === 'heroes'">
-            <div class="heroes">
-                <div v-for="hero in gameData.heroes" :key="hero.roleId"
-                     class="hero-card" :class="'quality-1'"
-                     @click="selectedHero = hero">
-                    <div class="hero-icon">{{ getRole(hero.roleId).icon }}</div>
-                    <div class="hero-info">
-                        <h4>{{ getRole(hero.roleId).name }}</h4>
-                        <p>Lv.{{ hero.level }}</p>
-                    </div>
-                </div>
-                <div v-if="!gameData.heroes.length" class="empty-state">暂无角色</div>
-            </div>
-            <div v-if="selectedHero" class="modal" @click.self="selectedHero = null">
-                <div class="hero-detail">
-                    <h3>{{ getRole(selectedHero.roleId).name }} Lv.{{ selectedHero.level }}</h3>
-                    <div class="stat-row"><span>HP</span><span>{{ getHeroTotalStat(selectedHero, 'hp') }}</span></div>
-                    <div class="stat-row"><span>攻击</span><span>{{ getHeroTotalStat(selectedHero, 'atk') }}</span></div>
-                    <div class="stat-row"><span>防御</span><span>{{ getHeroTotalStat(selectedHero, 'def') }}</span></div>
-                    <div class="stat-row"><span>暴击</span><span>{{ getRole(selectedHero.roleId).crit }}%</span></div>
-                    <h4 style="margin-top: 12px; margin-bottom: 8px;">装备</h4>
-                    <div v-for="slot in ['weapon', 'armor', 'accessory']" :key="slot" class="equip-slot">
-                        <span class="slot-label">{{ getEquipTypeLabel(slot) }}</span>
-                        <span v-if="selectedHero.equipment[slot]" class="slot-item" :style="{ color: getQualityColor(selectedHero.equipment[slot].quality) }">
-                            {{ selectedHero.equipment[slot].name }} (+{{ selectedHero.equipment[slot].bonus }})
-                            <button @click="unequipFromHero(selectedHero, slot)" class="btn-xs">卸下</button>
-                        </span>
-                        <span v-else class="slot-empty">空</span>
-                    </div>
-                    <button @click="autoEquipAll()" class="btn btn-autoequip" style="margin-top: 10px; width: 100%;">一键装备</button>
-                    <button @click="selectedHero = null" class="btn" style="margin-top: 8px; width: 100%;">关闭</button>
-                </div>
-            </div>
-        </main>
-        <main v-else-if="currentTabId === 'inventory'">
-            <div class="inventory">
-                <div v-for="equip in gameData.equipment" :key="equip.id"
-                     class="equip-card" :class="'quality-border-' + equip.quality">
-                    <div class="equip-info">
-                        <div class="equip-name" :style="{ color: getQualityColor(equip.quality) }">
-                            {{ equip.name }} <span v-if="equip.count > 1" class="equip-count">×{{ equip.count }}</span>
-                        </div>
-                        <div class="equip-type">{{ getRoleLabel(equip.forRole) }} {{ getEquipTypeLabel(equip.type) }} Lv.{{ equip.level }}</div>
-                        <div class="equip-bonus">+{{ equip.bonus }} {{ getEquipStatLabel(equip.type) }}</div>
-                    </div>
-                    <div class="equip-actions">
-                        <button @click="startEquip(equip)" class="btn-sm btn-equip">装备</button>
-                        <button @click="enhanceEquip(equip)" class="btn-sm"
-                                :disabled="gameData.gold < enhanceCost(equip)">
-                            强化 ({{ enhanceCost(equip) }}💰)
-                        </button>
-                        <button @click="sellEquip(equip)" class="btn-sm btn-sell">
-                            出售 ({{ sellPrice(equip) }}💰)
-                        </button>
-                    </div>
-                </div>
-                <div v-if="!gameData.equipment.length" class="empty-state">背包为空</div>
-            </div>
-            <div v-if="equipTarget" class="modal" @click.self="equipTarget = null">
-                <div class="modal-content">
-                    <h3>选择角色装备 {{ equipTarget.name }}</h3>
-                    <div v-for="hero in gameData.heroes" :key="hero.roleId"
-                         class="stage-option" :class="{ disabled: !canEquip(equipTarget, hero) }"
-                         @click="canEquip(equipTarget, hero) && equipToHero(hero)">
-                        <span>{{ getRole(hero.roleId).icon }} {{ getRole(hero.roleId).name }} Lv.{{ hero.level }}</span>
-                        <span v-if="!canEquip(equipTarget, hero)" class="equipped-info">(职业不符)</span>
-                        <span v-else-if="hero.equipment[equipTarget.type]" class="equipped-info">
-                            (替换: {{ hero.equipment[equipTarget.type].name }})
-                        </span>
-                    </div>
-                    <button @click="equipTarget = null" class="btn">取消</button>
-                </div>
-            </div>
-        </main>
-        <main v-else>
-            <div class="shop">
-                <div class="gacha-section">
-                    <h3>召唤冒险者</h3>
-                    <p class="gacha-desc">消耗金币召唤随机角色 ({{ GACHA_COST }}💰/次)</p>
-                    <div class="gacha-rates">
-                        <span class="rate rate-5">传说 5%</span>
-                        <span class="rate rate-4">史诗 10%</span>
-                        <span class="rate rate-3">精良 15%</span>
-                        <span class="rate rate-2">优秀 20%</span>
-                        <span class="rate rate-1">普通 50%</span>
-                    </div>
-                    <div class="gacha-buttons">
-                        <button @click="gacha(1)" class="btn-gacha" :disabled="gameData.gold < GACHA_COST">
-                            单抽 ({{ GACHA_COST }}💰)
-                        </button>
-                        <button @click="gacha(10)" class="btn-gacha btn-gacha-10" :disabled="gameData.gold < GACHA_COST * 10">
-                            10连 ({{ GACHA_COST * 10 }}💰)
-                        </button>
-                        <button @click="gacha(maxGachaCount)" class="btn-gacha btn-gacha-max" :disabled="maxGachaCount < 1">
-                            最大 ×{{ maxGachaCount }}
-                        </button>
-                    </div>
-                    <div v-if="gachaResult && gachaResult.length" class="gacha-results">
-                        <div v-for="(r, i) in gachaResult" :key="i"
-                             class="gacha-result-mini" :class="'quality-border-' + r.quality">
-                            <span class="gacha-mini-icon">{{ r.icon }}</span>
-                            <span class="gacha-mini-name" :style="{ color: getQualityColor(r.quality || 1) }">
-                                {{ r.name }}
-                            </span>
-                            <span v-if="r.isNew" class="gacha-new">NEW</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+        <component :is="currentTabComponent"></component>
         <nav class="tabs">
             <button v-for="tab in tabs" :key="tab.id"
                     :class="{ active: currentTabId === tab.id }"
@@ -167,7 +25,13 @@
     </div>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="js/data.js"></script>
-    <script src="js/game.js"></script>
+    <script src="js/core/game.js"></script>
+    <script src="js/core/battle.js"></script>
+    <script src="js/core/inventory.js"></script>
+    <script src="js/pages/adventure/adventure.js"></script>
+    <script src="js/pages/heroes/heroes.js"></script>
+    <script src="js/pages/inventory/inventory.js"></script>
+    <script src="js/pages/shop/shop.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
